@@ -1,0 +1,19 @@
+# Сетевые приложения на ответах из internal/uitest/testdata/http: погода, новости,
+# Википедия и их сводки на домашнем экране.
+tap 719 1032              # «Погода»
+shot 01-weather
+key home
+tap 1175 1032             # «Новости»
+shot 02-news
+tap 720 350               # статья Хабра
+shot 03-news-item
+tap 720 1843              # «Читать полностью»: текст со страницы статьи
+shot 04-article
+key home
+tap 263 1388              # «Википедия»
+shot 05-wiki
+tap 1243 70               # случайная статья
+wait 2700                 # тост «Выбираем статью…» исчезает
+shot 06-wiki-article
+key home
+shot 07-home-summaries    # сводки погоды и новостей справа от часов

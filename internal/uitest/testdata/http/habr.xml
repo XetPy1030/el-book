@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Статьи / Хабр</title>
+    <link>https://habr.com/ru/articles/</link>
+    <description>Синтетическая лента для UI-тестов</description>
+    <item>
+      <title><![CDATA[Как мы перевели склад на электронные ценники и не сошли с ума]]></title>
+      <guid isPermaLink="true">https://habr.com/ru/articles/900101/</guid>
+      <link>https://habr.com/ru/articles/900101/</link>
+      <description><![CDATA[<p>Двадцать тысяч e-ink-ценников, одна ночь на обновление и батарейки, которых должно хватить на пять лет. Рассказываем, что пошло не так и как мы это починили.</p><img src="https://habr.example/img.png">]]></description>
+      <pubDate>Mon, 19 Oct 2026 13:40:00 +0300</pubDate>
+      <dc:creator><![CDATA[автор]]></dc:creator>
+    </item>
+    <item>
+      <title><![CDATA[Пишем растеризатор кривых: от Безье до сглаживания]]></title>
+      <guid isPermaLink="true">https://habr.com/ru/articles/900102/</guid>
+      <link>https://habr.com/ru/articles/900102/</link>
+      <description><![CDATA[<p>Разбираем, как превратить кривую в пиксели без артефактов: деление на отрезки, покрытие пикселя и почему капсула удобнее линии.</p>]]></description>
+      <pubDate>Mon, 19 Oct 2026 12:15:00 +0300</pubDate>
+      <dc:creator><![CDATA[автор]]></dc:creator>
+    </item>
+    <item>
+      <title><![CDATA[Почему SQLite хватает для домашних проектов]]></title>
+      <guid isPermaLink="true">https://habr.com/ru/articles/900103/</guid>
+      <link>https://habr.com/ru/articles/900103/</link>
+      <description><![CDATA[<p>Одна библиотека, один файл и никаких серверов. Где проходят границы и что делать, когда их достигли.</p>]]></description>
+      <pubDate>Mon, 19 Oct 2026 10:05:00 +0300</pubDate>
+      <dc:creator><![CDATA[автор]]></dc:creator>
+    </item>
+    <item>
+      <title><![CDATA[Тёмная тема на e-ink: опыт трёх прототипов]]></title>
+      <guid isPermaLink="true">https://habr.com/ru/articles/900104/</guid>
+      <link>https://habr.com/ru/articles/900104/</link>
+      <description><![CDATA[<p>Инверсия экрана кажется простой задачей, пока не появляются ореолы. Сравниваем три подхода и режимы обновления.</p>]]></description>
+      <pubDate>Mon, 19 Oct 2026 08:30:00 +0300</pubDate>
+      <dc:creator><![CDATA[автор]]></dc:creator>
+    </item>
+  </channel>
+</rss>

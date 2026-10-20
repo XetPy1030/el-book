@@ -1,0 +1,11 @@
+# Сеть UI-тестов: подстрока адреса → файл ответа в этой папке. Подходит первая строка сверху;
+# запрос, которому ничего не подошло, — ошибка теста. Тексты лент и статей выдуманы.
+api.open-meteo.com/v1/forecast    weather.json
+geocoding-api.open-meteo.com      geo.json
+habr.com/ru/rss                   habr.xml
+habr.com/ru/articles              article.html
+nplus1.ru/rss                     nplus1.xml
+lenta.ru/rss                      lenta.xml
+list=random                       wiki-random.json
+list=search                       wiki-search.json
+prop=extracts                     wiki-article.json

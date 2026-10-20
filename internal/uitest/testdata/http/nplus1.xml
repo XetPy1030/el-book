@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>N + 1</title>
+  <updated>2026-10-19T11:20:00+03:00</updated>
+  <entry>
+    <title>Лишайники пережили год на внешней стороне орбитальной станции</title>
+    <id>urn:n1:0</id>
+    <link rel="alternate" href="https://nplus1.ru/news/2026/10/19/item-0"/>
+    <updated>2026-10-19T11:20:00+03:00</updated>
+    <summary>Образцы вернули на Землю, и почти все они снова начали расти. Авторы объясняют устойчивость плотной оболочкой клеток.</summary>
+  </entry>
+  <entry>
+    <title>Физики измерили, как быстро остывает капля в невесомости</title>
+    <id>urn:n1:1</id>
+    <link rel="alternate" href="https://nplus1.ru/news/2026/10/19/item-1"/>
+    <updated>2026-10-19T09:45:00+03:00</updated>
+    <summary>В опыте использовали капли диаметром несколько миллиметров; без конвекции они остывали заметно медленнее.</summary>
+  </entry>
+  <entry>
+    <title>Пчёлы научились различать узоры из точек и линий</title>
+    <id>urn:n1:2</id>
+    <link rel="alternate" href="https://nplus1.ru/news/2026/10/19/item-2"/>
+    <updated>2026-10-19T07:10:00+03:00</updated>
+    <summary>Насекомые получали сироп за правильный выбор и через несколько дней ошибались реже одного раза из пяти.</summary>
+  </entry>
+</feed>

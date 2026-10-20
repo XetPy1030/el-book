@@ -1,0 +1,18 @@
+# Системные события: кабель от компьютера, низкий заряд, зарядное устройство.
+usb computer on
+shot 01-usb-dialog
+tap 412 1075           # «Только зарядка»
+battery 9
+usb computer off       # кабель вынули при 9 %: подсказка о зарядке
+shot 02-low-battery
+usb charger on
+shot 03-charger-toast
+wait 2700              # тост исчезает
+battery 4
+usb charger off        # зарядку отключили при 4 %: окно
+shot 04-critical-battery
+tap 720 1075           # «Понятно»
+battery 50
+usb computer on
+usb computer off       # кабель вынули, не ответив: окно закрывается само
+shot 05-usb-unplugged
