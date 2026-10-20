@@ -1,0 +1,5 @@
+# Пункты NickelMenu проекта el-book. Копируется в /mnt/onboard/.adds/nm/el-book.
+# Формат: res/doc в репозитории NickelMenu.
+
+menu_item :main :el-book :cmd_spawn :quiet:exec /bin/sh /mnt/onboard/.adds/el-book/launch.sh
+menu_item :main :el-book — сбор данных :cmd_output :9000:sh /mnt/onboard/.adds/el-book/probe.sh
