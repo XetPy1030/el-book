@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>el-book — эмулятор</title>
+<style>
+  :root {
+    --bg: #1e1f22; --panel: #2a2c30; --text: #e6e6e6; --muted: #9aa0a6; --accent: #8ab4f8;
+    --bezel: #2f2f31; --bezel-edge: #444;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif;
+         display: flex; gap: 24px; padding: 16px; height: 100vh; overflow: hidden; }
+  .device { flex: none; display: flex; align-items: center; gap: 10px; height: 100%; }
+  .bezel { position: relative; background: var(--bezel); border: 2px solid var(--bezel-edge); border-radius: 28px;
+           padding: 22px 22px 22px 22px; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  .bezel.landscape { padding: 22px 22px 22px 22px; }
+  .screen { position: relative; background: #fff; line-height: 0; }
+  canvas { display: block; image-rendering: auto; }
+  #overlay { position: absolute; left: 0; top: 0; cursor: crosshair; touch-action: none; }
+  #glow { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; }
+  #sleep { position: absolute; inset: 0; display: none; align-items: flex-end; justify-content: center; pointer-events: none; }
+  #sleep span { background: rgba(0,0,0,.75); color: #fff; padding: 8px 14px; border-radius: 8px; margin-bottom: 18px; font-size: 15px; line-height: 1.3; }
+  .buttons { display: flex; flex-direction: column; gap: 12px; }
+  .hw { width: 44px; height: 70px; border-radius: 10px; border: 1px solid #555; background: #3a3a3d; color: var(--text);
+        font-size: 20px; cursor: pointer; }
+  .hw:active { background: #555; }
+  .side { flex: 1; min-width: 300px; max-width: 460px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--panel); border-radius: 10px; padding: 12px 14px; }
+  .card h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button.ctl { background: #3b3e44; color: var(--text); border: 1px solid #50545b; border-radius: 7px; padding: 6px 10px; cursor: pointer; font: inherit; }
+  button.ctl:hover { border-color: var(--accent); }
+  button.ctl.on { background: var(--accent); color: #111; }
+  kbd { font: 11px ui-monospace, monospace; background: #111; border-radius: 4px; padding: 1px 4px; color: var(--muted); }
+  .stat { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; }
+  .stat b { font-weight: 500; }
+  #log { font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; max-height: 260px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+  #log li { white-space: nowrap; }
+  .wf { display: inline-block; min-width: 54px; font-weight: 700; }
+  .wf-DU { color: #f9ab00; } .wf-A2 { color: #f28b82; } .wf-GL16 { color: #8ab4f8; }
+  .wf-REAGL { color: #c58af9; } .wf-GC16 { color: #81c995; } .wf-AUTO { color: #e6e6e6; }
+  label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+  input[type=range] { width: 160px; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="bezel" id="bezel">
+    <div class="screen" id="screen">
+      <canvas id="panel"></canvas>
+      <div id="glow"></div>
+      <canvas id="overlay"></canvas>
+      <div id="sleep"><span>Сон — нажмите «Питание» или откройте обложку</span></div>
+    </div>
+  </div>
+  <div class="buttons">
+    <button class="hw" title="Листать назад (←)" data-key="pgback">▲</button>
+    <button class="hw" title="Листать вперёд (→)" data-key="pgfwd">▼</button>
+  </div>
+</div>
+<div class="side">
+  <div class="card">
+    <h2>Книга</h2>
+    <div class="stat">
+      <span class="muted">Модель</span><b id="model">—</b>
+      <span class="muted">Экран</span><b id="size">—</b>
+      <span class="muted">Заряд</span><b id="bat">—</b>
+      <span class="muted">Подсветка</span><b id="light">—</b>
+      <span class="muted">Состояние</span><b id="state">—</b>
+      <span class="muted">Wi-Fi</span><b id="wifi">—</b>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Кнопки</h2>
+    <div class="row">
+      <button class="ctl" id="power">Питание <kbd>P</kbd></button>
+      <button class="ctl" id="cover">Закрыть обложку <kbd>C</kbd></button>
+      <button class="ctl" data-key="pgback">Назад <kbd>←</kbd></button>
+      <button class="ctl" data-key="pgfwd">Вперёд <kbd>→</kbd></button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Питание и USB</h2>
+    <div class="row">
+      <button class="ctl" data-usb="computer">Кабель к компьютеру</button>
+      <button class="ctl" data-usb="charger">Зарядка</button>
+      <button class="ctl" data-usb="off">Отключить</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label><input type="checkbox" id="offline"> Нет сети: Wi-Fi не находит знакомых сетей</label>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label>Заряд <input type="range" id="level" min="0" max="100" value="87"> <span id="levelv">87</span>%</label>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Положение книги (датчик)</h2>
+    <div class="row">
+      <button class="ctl" data-rot="0">Портрет</button>
+      <button class="ctl" data-rot="1">Альбом ↻</button>
+      <button class="ctl" data-rot="2">Портрет ⟲⟲</button>
+      <button class="ctl" data-rot="3">Альбом ↺</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>E-ink</h2>
+    <div class="row">
+      <label><input type="checkbox" id="showUpdates" checked> Подсвечивать обновления</label>
+      <label><input type="checkbox" id="flash" checked> Мигание полных</label>
+    </div>
+    <div class="row muted" style="margin-top:6px" id="counters">—</div>
+  </div>
+  <div class="card" style="flex:1">
+    <h2>Журнал обновлений</h2>
+    <ul id="log"></ul>
+  </div>
+</div>
+<script>
+const panel = document.getElementById('panel');
+const overlay = document.getElementById('overlay');
+const pctx = panel.getContext('2d');
+const octx = overlay.getContext('2d');
+const glow = document.getElementById('glow');
+let state = null, coverClosed = false;
+const counts = {};
+const colors = { DU: '#f9ab00', A2: '#f28b82', GL16: '#1a73e8', REAGL: '#a142f4', GC16: '#188038', AUTO: '#5f6368' };
+
+function fit() {
+  if (!state) return;
+  const maxH = window.innerHeight - 32 - 48;
+  const maxW = window.innerWidth - 520 - 48 - 60;
+  const scale = Math.min(maxH / state.height, maxW / state.width, 1);
+  for (const c of [panel, overlay]) {
+    c.style.width = Math.round(state.width * scale) + 'px';
+    c.style.height = Math.round(state.height * scale) + 'px';
+  }
+  glow.style.width = panel.style.width; glow.style.height = panel.style.height;
+}
+
+async function loadFrame() {
+  const img = new Image();
+  img.src = '/frame.png?t=' + Date.now();
+  await img.decode();
+  pctx.drawImage(img, 0, 0);
+}
+
+function setState(s) {
+  const resized = !state || state.width !== s.width || state.height !== s.height;
+  state = s;
+  if (resized) {
+    panel.width = overlay.width = s.width;
+    panel.height = overlay.height = s.height;
+    fit();
+    queue = queue.then(loadFrame);
+  }
+  document.getElementById('model').textContent = s.model;
+  document.getElementById('size').textContent = `${s.width}×${s.height}, поворот ${s.rotation * 90}°`;
+  document.getElementById('bat').textContent = `${s.battery}%` + (s.charging ? ', заряжается' : '');
+  document.getElementById('light').textContent = `яркость ${s.brightness}%, теплота ${s.warmth}%`;
+  document.getElementById('state').textContent = s.sleeping ? 'спит' : 'работает';
+  document.getElementById('wifi').textContent = s.wifi;
+  document.getElementById('offline').checked = s.offline;
+  document.getElementById('sleep').style.display = s.sleeping ? 'flex' : 'none';
+  document.getElementById('level').value = s.battery;
+  document.getElementById('levelv').textContent = s.battery;
+  const b = s.brightness / 100, w = s.warmth / 100;
+  glow.style.background = b > 0 ? `rgba(255, ${Math.round(240 - 60 * w)}, ${Math.round(220 - 140 * w)}, ${0.18 * b + 0.04 * w})` : 'transparent';
+}
+
+let queue = Promise.resolve();
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function applyUpdate(u) {
+  const img = new Image();
+  img.src = '/rect.png?seq=' + u.seq;
+  try { await img.decode(); } catch (e) { await loadFrame(); return; }
+  if (u.full && document.getElementById('flash').checked) {
+    pctx.fillStyle = '#000'; pctx.fillRect(u.x, u.y, u.w, u.h); await sleep(110);
+    pctx.fillStyle = '#fff'; pctx.fillRect(u.x, u.y, u.w, u.h); await sleep(90);
+  }
+  pctx.drawImage(img, u.x, u.y);
+  if (document.getElementById('showUpdates').checked) highlight(u);
+  counts[u.waveform] = (counts[u.waveform] || 0) + 1;
+  document.getElementById('counters').textContent =
+    Object.entries(counts).map(([k, v]) => `${k}: ${v}`).join(' · ') + ` · всего ${u.seq}`;
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="muted">#${u.seq}</span> <span class="wf wf-${u.waveform}">${u.waveform}${u.full ? '!' : ''}</span> ${u.w}×${u.h} @${u.x},${u.y}`;
+  const log = document.getElementById('log');
+  log.prepend(li);
+  while (log.children.length > 80) log.lastChild.remove();
+}
+
+let marks = [];
+function highlight(u) {
+  marks.push({ u, until: performance.now() + 700 });
+  drawMarks();
+}
+function drawMarks() {
+  octx.clearRect(0, 0, overlay.width, overlay.height);
+  const now = performance.now();
+  marks = marks.filter(m => m.until > now);
+  for (const m of marks) {
+    octx.strokeStyle = colors[m.u.waveform] || '#000';
+    octx.lineWidth = 6;
+    octx.globalAlpha = Math.min(1, (m.until - now) / 400);
+    octx.strokeRect(m.u.x + 3, m.u.y + 3, m.u.w - 6, m.u.h - 6);
+  }
+  octx.globalAlpha = 1;
+  if (marks.length) requestAnimationFrame(drawMarks);
+}
+
+const es = new EventSource('/events');
+es.addEventListener('state', e => setState(JSON.parse(e.data)));
+es.addEventListener('update', e => { const u = JSON.parse(e.data); queue = queue.then(() => applyUpdate(u)); });
+window.addEventListener('resize', fit);
+
+// Касания: мышь или палец работают как палец на экране книги.
+let pending = [], down = false;
+function toPanel(ev) {
+  const r = overlay.getBoundingClientRect();
+  return { x: Math.round((ev.clientX - r.left) * state.width / r.width), y: Math.round((ev.clientY - r.top) * state.height / r.height) };
+}
+function flush() {
+  if (!pending.length) return;
+  const events = pending; pending = [];
+  fetch('/input', { method: 'POST', body: JSON.stringify({ events }) });
+}
+overlay.addEventListener('pointerdown', ev => { down = true; overlay.setPointerCapture(ev.pointerId); pending.push({ t: 'down', ...toPanel(ev) }); flush(); });
+overlay.addEventListener('pointermove', ev => { if (!down) return; pending.push({ t: 'move', ...toPanel(ev) }); });
+overlay.addEventListener('pointerup', ev => { if (!down) return; down = false; pending.push({ t: 'up', ...toPanel(ev) }); flush(); });
+setInterval(flush, 16);
+
+const post = (url, body) => fetch(url, { method: 'POST', body: JSON.stringify(body) });
+async function key(k) { await post('/key', { key: k, pressed: true }); await post('/key', { key: k, pressed: false }); }
+document.querySelectorAll('[data-key]').forEach(b => b.addEventListener('click', () => key(b.dataset.key)));
+document.getElementById('power').addEventListener('click', () => key('power'));
+const coverBtn = document.getElementById('cover');
+function toggleCover() {
+  coverClosed = !coverClosed;
+  post('/key', { key: 'cover', pressed: coverClosed });
+  coverBtn.classList.toggle('on', coverClosed);
+  coverBtn.firstChild.textContent = coverClosed ? 'Открыть обложку ' : 'Закрыть обложку ';
+}
+coverBtn.addEventListener('click', toggleCover);
+document.querySelectorAll('[data-usb]').forEach(b => b.addEventListener('click', () => {
+  const v = b.dataset.usb;
+  if (v === 'off') post('/usb', { source: 'computer', connected: false });
+  else post('/usb', { source: v, connected: true });
+}));
+document.querySelectorAll('[data-rot]').forEach(b => b.addEventListener('click', () => post('/orientation', { rotation: +b.dataset.rot })));
+document.getElementById('offline').addEventListener('change', ev => post('/network', { offline: ev.target.checked }));
+document.getElementById('level').addEventListener('change', ev => post('/battery', { level: +ev.target.value, charging: state.charging }));
+window.addEventListener('keydown', ev => {
+  if (ev.repeat) return;
+  if (ev.key === 'ArrowLeft' || ev.key === 'PageUp') key('pgback');
+  else if (ev.key === 'ArrowRight' || ev.key === 'PageDown') key('pgfwd');
+  else if (ev.key === 'p' || ev.key === 'з') key('power');
+  else if (ev.key === 'c' || ev.key === 'с') toggleCover();
+});
+</script>
+</body>
+</html>
