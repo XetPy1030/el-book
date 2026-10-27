@@ -9,6 +9,7 @@ import (
 	"el-book/apps/mines"
 	"el-book/apps/news"
 	"el-book/apps/notes"
+	"el-book/apps/rachinsky"
 	"el-book/apps/sudoku"
 	"el-book/apps/tiles"
 	"el-book/apps/timer"
@@ -33,5 +34,6 @@ func Apps() []app.App {
 		sudoku.New(),
 		mines.New(),
 		tiles.New(),
+		rachinsky.New(),
 	}
 }
